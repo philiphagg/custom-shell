@@ -33,7 +33,6 @@ char *builtin_str[] = {
 
 int (*builtin_func[]) (char **) = {
         &lsh_cd,
-        &lsh_csgo,
         &lsh_help,
         &lsh_pwd,
         &lsh_exit
