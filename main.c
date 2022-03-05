@@ -18,7 +18,6 @@ int lsh_execute(char **pString);
 int lsh_num_builtins();
 
 int lsh_cd(char **args);
-int lsh_csgo(char ** args);
 int lsh_help(char **args);
 int lsh_pwd();
 int lsh_exit(char **args);
@@ -27,7 +26,6 @@ int lsh_exit(char **args);
 
 char *builtin_str[] = {
         "cd",
-        "csgo",
         "help",
         "pwd",
         "exit"
@@ -192,9 +190,6 @@ int lsh_cd(char **args)
     return 1;
 }
 
-int lsh_csgo(char ** args){
-    execv("steam://rungameid/730", args);
-}
 
 int lsh_pwd()
 {
