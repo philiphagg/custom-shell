@@ -6,21 +6,21 @@
 #include <sys/wait.h>
 
 
-#define LSH_RL_BUFSIZE 1024
-#define LSH_TOK_BUFSIZE 64
-#define LSH_TOK_DELIM " \t\r\n\a"
+#define SHELL_RL_BUFSIZE 1024
+#define SHELL_TOK_BUFSIZE 64
+#define SHELL_TOK_DELIM " \t\r\n\a"
 
-void lsh_loop(void);
-char *lsh_read_line(void);
-char **lsh_split_line(char *line);
-int lsh_launch(char **args);
-int lsh_execute(char **pString);
-int lsh_num_builtins();
+void shell_loop(void);
+char *shell_read_line(void);
+char **shell_split_line(char *line);
+int shell_launch(char **args);
+int shell_execute(char **pString);
+int shell_num_builtins();
 
-int lsh_cd(char **args);
-int lsh_help(char **args);
-int lsh_pwd();
-int lsh_exit(char **args);
+int shell_cd(char **args);
+int shell_help(char **args);
+int shell_pwd();
+int shell_exit(char **args);
 
 
 
@@ -32,16 +32,16 @@ char *builtin_str[] = {
 };
 
 int (*builtin_func[]) (char **) = {
-        &lsh_cd,
-        &lsh_help,
-        &lsh_pwd,
-        &lsh_exit
+        &shell_cd,
+        &shell_help,
+        &shell_pwd,
+        &shell_exit
 };
 
 
 int main(int argc, char **argv) {
 
-    lsh_loop();
+    shell_loop();
 
     return EXIT_SUCCESS;
 }
@@ -49,16 +49,16 @@ int main(int argc, char **argv) {
 
 
 
-void lsh_loop(void){
+void shell_loop(void){
     char *line;
     char **args;
     int status;
 
     do{
         printf("Teddy shell ʕ•́ᴥ•̀ʔっ -> ");
-        line = lsh_read_line();
-        args = lsh_split_line(line);
-        status = lsh_execute(args);
+        line = shell_read_line();
+        args = shell_split_line(line);
+        status = shell_execute(args);
 
         free(line);
         free(args);
@@ -67,8 +67,8 @@ void lsh_loop(void){
 
 
 
-char *lsh_read_line(void){
-    int bufsize = LSH_RL_BUFSIZE;
+char *shell_read_line(void){
+    int bufsize = SHELL_RL_BUFSIZE;
     int position = 0;
     char *buffer = malloc(sizeof (char) * bufsize);
     int c;
@@ -89,7 +89,7 @@ char *lsh_read_line(void){
         }
 
         if(position >= bufsize){
-            bufsize += LSH_RL_BUFSIZE;
+            bufsize += SHELL_RL_BUFSIZE;
             buffer = realloc(buffer,bufsize);
             if(!buffer){
                 fprintf(stderr, "Teddy says: allocation error\n");
@@ -99,8 +99,8 @@ char *lsh_read_line(void){
     }
 }
 
-char **lsh_split_line(char *line){
-    int bufsize = LSH_TOK_BUFSIZE, position = 0;
+char **shell_split_line(char *line){
+    int bufsize = SHELL_TOK_BUFSIZE, position = 0;
     char **tokens = malloc(bufsize * sizeof (char*));
     char *token;
 
@@ -109,12 +109,12 @@ char **lsh_split_line(char *line){
         exit(EXIT_FAILURE);
     }
 
-    token = strtok(line,LSH_TOK_DELIM);
+    token = strtok(line, SHELL_TOK_DELIM);
     while (token != NULL) {
         tokens[position++] = token;
 
         if (position >= bufsize) {
-            bufsize += LSH_TOK_BUFSIZE;
+            bufsize += SHELL_TOK_BUFSIZE;
             tokens = realloc(tokens, bufsize * sizeof(char*));
             if (!tokens) {
                 fprintf(stderr, "Teddy says: allocation error\n");
@@ -122,7 +122,7 @@ char **lsh_split_line(char *line){
             }
         }
 
-        token = strtok(NULL, LSH_TOK_DELIM);
+        token = strtok(NULL, SHELL_TOK_DELIM);
     }
     tokens[position] = NULL;
     return tokens;
@@ -130,7 +130,7 @@ char **lsh_split_line(char *line){
 
 
 
-int lsh_execute(char **args)
+int shell_execute(char **args)
 {
     int i;
 
@@ -139,18 +139,18 @@ int lsh_execute(char **args)
         return 1;
     }
 
-    for (i = 0; i < lsh_num_builtins(); i++) {
+    for (i = 0; i < shell_num_builtins(); i++) {
         if (strcmp(args[0], builtin_str[i]) == 0) {
             return (*builtin_func[i])(args);
         }
     }
 
-    return lsh_launch(args);
+    return shell_launch(args);
 }
 
 
 
-int lsh_launch(char **args)
+int shell_launch(char **args)
 {
     pid_t pid, wpid;
     int status;
@@ -173,11 +173,11 @@ int lsh_launch(char **args)
 }
 
 
-int lsh_num_builtins() {
+int shell_num_builtins() {
     return sizeof(builtin_str) / sizeof(char *);
 }
 
-int lsh_cd(char **args)
+int shell_cd(char **args)
 {
     if (args[1] == NULL) {
         fprintf(stderr, "expected argument to \"cd\"\n");
@@ -190,20 +190,20 @@ int lsh_cd(char **args)
 }
 
 
-int lsh_pwd()
+int shell_pwd()
 {
     system("pwd");
     return 1;
 }
 
 
-int lsh_help(char **args)
+int shell_help(char **args)
 {
     int i;
     printf("Welcome to the Teddy shell ʕ•́ᴥ•̀ʔっ \n");
     printf("These are the available commands:\n");
 
-    for (i = 0; i < lsh_num_builtins(); i++) {
+    for (i = 0; i < shell_num_builtins(); i++) {
         printf("  %s\n", builtin_str[i]);
     }
 
@@ -211,7 +211,7 @@ int lsh_help(char **args)
     return 1;
 }
 
-int lsh_exit(char **args)
+int shell_exit(char **args)
 {
     return 0;
 }
